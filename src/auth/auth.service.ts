@@ -160,4 +160,12 @@ export class AuthService {
       .replace(/\//g, '_')
       .replace(/=+$/, '');
   }
+
+  async GetCurUser(jwtPayload: JwtPayload) {
+    return await this.prismaService.user.findFirst({
+      where: {
+        id: jwtPayload.id,
+      },
+    });
+  }
 }

@@ -18,9 +18,10 @@ model User {
   email                String         @unique
   password             String
   refreshToken         RefreshToken[]
+  pages                Page[]
+  is_admin             Boolean        @default(false)
 
-  projects             Project[]
-  assets               Asset[]
+  assets Images[]
 }
 
 model RefreshToken {
@@ -33,74 +34,33 @@ model RefreshToken {
   userId    String   @map("user-id")
 }
 
-model Project {
-  id         String   @id @default(uuid())
-  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id    String
-  name       String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  pages  Page[]
-  assets Asset[]
-}
-
 model Page {
-  id         String   @id @default(uuid())
-  project    Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
-  project_id String
-  name       String
-  order      Int      @default(0)
-
-  blocks Block[]
-  navigations Navigation[] // Добавлена обратная связь для Navigation
+  id              String   @id @default(uuid())
+  updatedAt       DateTime @updatedAt @map("updated-at")
+  createdAt       DateTime @default(now()) @map("created-at")
+  name            String
+  page_data       Json
+  global_settings Json?
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
 }
 
 model Block {
-  id         String   @id @default(uuid())
-  page       Page     @relation(fields: [page_id], references: [id], onDelete: Cascade)
-  page_id    String
-  type       String   // Тип блока (карусель, кнопка, текст и т. д.)
-  position_x Int
-  position_y Int
-  width      Int
-  height     Int
-  settings   Json     // JSON-объект с настройками блока
-
-  asset      Asset?
-  animations Animation[]
-  navigation Navigation?
+  id            String   @id @default(uuid())
+  updatedAt     DateTime @updatedAt @map("updated-at")
+  createdAt     DateTime @default(now()) @map("created-at")
+  type          String
+  styles        String
+  html_template String
+  json_template String   @default("")
 }
 
-model Animation {
-  id         String   @id @default(uuid())
-  block      Block    @relation(fields: [block_id], references: [id], onDelete: Cascade)
-  block_id   String
-  type       String   // Тип анимации (fade-in, bounce и т. д.)
-  duration   Int      @default(1000) // В миллисекундах
-  delay      Int      @default(0)    
-}
-
-model Navigation {
-  id             String   @id @default(uuid())
-  block          Block    @relation(fields: [block_id], references: [id], onDelete: Cascade)
-  block_id       String   @unique
-  target_page    Page     @relation(fields: [target_page_id], references: [id], onDelete: Cascade)
-  target_page_id String
-}
-
-
-model Asset {
+model Images {
   id         String   @id @default(uuid())
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id    String
-  project    Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
-  project_id String
-  url        String   // Путь к файлу
-  filename   String   // Оригинальное название
-  size       Int      // Размер файла в байтах
+  url        String // Путь к файлу
+  filename   String // Оригинальное название
+  size       Int // Размер файла в байтах
   created_at DateTime @default(now())
-
-  block_id   String?  @unique
-  block      Block?   @relation(fields: [block_id], references: [id])
 }

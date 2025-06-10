@@ -1,5 +1,0 @@
-DATABASE_URL="postgresql://login:pass@localhost:5432/db?schema=public"
-
-JWT_SECRET = "your jwt secret"
-JWT_EXP = "5m"
-REFRESH_TOKEN_EXP = 5 #In days
